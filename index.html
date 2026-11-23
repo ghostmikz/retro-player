@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Retro Player</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="app">
+  <aside class="panel">
+    <h1>Retro Player</h1>
+
+    <section>
+      <h2>Skin</h2>
+      <label>Skin
+        <select id="skinSel">
+          <option value="skins/classic.wsz">Classic (base 2.91)</option>
+          <option value="skins/winamp5-classified.wsz">Winamp5 Classified</option>
+          <option value="skins/bento.wsz">Bento</option>
+          <option value="skins/microchip.wsz">Microchip</option>
+          <option value="skins/soundlair.wsz">SoundLair</option>
+          <option value="skins/ascii.wsz">ASCII</option>
+          <option value="skins/purple-glow.wsz">Purple Glow</option>
+          <option value="skins/blue-jeans.wsz">Blue Jeans</option>
+          <option value="skins/necromech.wsz">Necromech</option>
+        </select>
+      </label>
+      <label class="file">Load any .wsz skin <input type="file" id="skinFile" accept=".wsz,.zip"></label>
+      <p class="hint">Thousands more at skins.webamp.org (the Winamp Skin Museum). Download one and load it here.</p>
+      <div class="row">
+        <label>Video shape
+          <select id="aspectSel">
+            <option value="1:1">Square 1:1</option>
+            <option value="16:9">Wide 16:9</option>
+            <option value="9:16">Tall 9:16 (Reels)</option>
+          </select>
+        </label>
+      </div>
+      <label>Layout <select id="layoutSel"></select></label>
+    </section>
+
+    <section>
+      <h2>Song</h2>
+      <label class="file">Audio file <input type="file" id="audioFile" accept="audio/*"></label>
+      <div class="row">
+        <label>Title <input type="text" id="title"></label>
+        <label>Artist <input type="text" id="artist"></label>
+      </div>
+    </section>
+
+    <section>
+      <h2>Desktop</h2>
+      <div class="row">
+        <label>Background
+          <select id="bgMode">
+            <option value="color">Plain desktop color</option>
+            <option value="cover">Blurred cover art</option>
+            <option value="image">My wallpaper</option>
+          </select>
+        </label>
+        <label>Color <input type="color" id="bgColor" value="#3a6ea5"></label>
+      </div>
+      <label class="file">Wallpaper image <input type="file" id="bgFile" accept="image/*"></label>
+      <label class="file">Cover image (if the mp3 has none) <input type="file" id="coverFile" accept="image/*"></label>
+    </section>
+
+    <section>
+      <h2>Playback</h2>
+      <div class="transport">
+        <button id="playBtn" disabled>Play</button>
+        <input type="range" id="seek" min="0" max="1000" value="0" disabled>
+        <span id="clock">00:00 / 00:00</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Lyrics</h2>
+      <p class="hint">Paste plain lyrics, one line per row. Press <b>Sync</b>, then <b>hold</b> <kbd>Space</kbd> while each line is sung: press when it starts, let go when it ends. <kbd>Backspace</kbd> undoes, <kbd>Esc</kbd> stops.</p>
+      <textarea id="lyrics" spellcheck="false" placeholder="First line of the song&#10;Second line&#10;..."></textarea>
+      <div class="row buttons">
+        <button id="syncBtn" disabled>Sync</button>
+        <label class="file small">Load .lrc <input type="file" id="lrcFile" accept=".lrc,.txt"></label>
+        <button id="saveLrc">Save .lrc</button>
+        <button id="clearTimes">Clear times</button>
+      </div>
+      <details class="helper">
+        <summary>Pronunciation helper (only shown while syncing)</summary>
+        <p class="hint">One line per lyric line, e.g. romaji for Japanese. It shows under the next line while you sync, so you know what to listen for.</p>
+        <textarea id="helper" spellcheck="false" placeholder="hareta beranda no gogo..."></textarea>
+      </details>
+      <div id="syncBox" class="sync" hidden>
+        <div class="sync-label" id="syncLabel">Next line - press and hold Space when it starts:</div>
+        <div id="syncNext" class="sync-next"></div>
+        <div id="syncHelp" class="sync-help"></div>
+        <div id="syncAfter" class="sync-after"></div>
+        <button id="tapBtn">Hold here (or Space)</button>
+      </div>
+      <div class="row">
+        <label>Lyrics offset (ms) <input type="number" id="offset" value="0" step="50"></label>
+        <label class="check"><input type="checkbox" id="sweep" checked> Highlight sweep</label>
+      </div>
+    </section>
+
+    <section>
+      <h2>Record video</h2>
+      <div class="row">
+        <label>From (m:ss) <input type="text" id="clipStart" placeholder="0:00"></label>
+        <label>To (m:ss) <input type="text" id="clipEnd" placeholder="end"></label>
+      </div>
+      <div class="row">
+        <label>Fade in (sec) <input type="number" id="fadeIn" min="0" max="10" step="0.5" value="1"></label>
+        <label>Fade out (sec) <input type="number" id="fadeOut" min="0" max="10" step="0.5" value="2"></label>
+      </div>
+      <label>Sound level
+        <select id="level">
+          <option value="player">Same as in the player</option>
+          <option value="youtube">YouTube level</option>
+          <option value="original">Original file (can be very loud)</option>
+        </select>
+      </label>
+      <p class="hint">The window goes fullscreen and records the player. Don't touch anything until it finishes (Esc cancels). Then the finished mp4 is made with the original song audio and saved to ~/Videos/retro-player.</p>
+      <div class="row buttons">
+        <button id="recBtn" class="primary" disabled>Record video</button>
+      </div>
+      <div id="recStatus" class="status"></div>
+      <a id="download" class="download" hidden>Download video</a>
+    </section>
+  </aside>
+
+  <section class="stage-wrap" id="stageWrap">
+    <div id="stage">
+      <canvas id="wall" width="1920" height="1080"></canvas>
+      <div id="wa"></div>
+      <canvas id="art"></canvas>
+      <canvas id="lyr"></canvas>
+    </div>
+  </section>
+</main>
+<script src="vendor/jszip.min.js"></script>
+<script src="vendor/webamp.bundle.min.js"></script>
+<script src="id3.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
